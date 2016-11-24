@@ -16,3 +16,5 @@ BY SHOUYI WANG
 	+ [Clustering multivariate time-series data](http://onlinelibrary.wiley.com/doi/10.1002/cem.945/full)
 	+ [Nonlinear multivariate and time series analysis by neural network methods](http://onlinelibrary.wiley.com/doi/10.1029/2002RG000112/full)
 	+ [Learning recurrent behaviors from heterogeneous multivariate time-series](http://www.sciencedirect.com/science/article/pii/S0933365706001023)
++ Repository
+	+ [clustering and classification of time series](https://github.com/alexminnaar/time-series-classification-and-clustering/blob/master/spatio-time%20cluster.py)
