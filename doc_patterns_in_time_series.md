@@ -18,3 +18,6 @@ BY SHOUYI WANG
 	+ [Learning recurrent behaviors from heterogeneous multivariate time-series](http://www.sciencedirect.com/science/article/pii/S0933365706001023)
 + Repository
 	+ [clustering and classification of time series](https://github.com/alexminnaar/time-series-classification-and-clustering/blob/master/spatio-time%20cluster.py)
+	
+# Interesting information:
+3.7. Motif Discovery in page 12, 19, 21
