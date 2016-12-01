@@ -20,6 +20,9 @@ Our goal is to create or use algorithm enabling us to classify or to clusterize 
 + Search more information about home made / cheap EEG
 + Possible applications
 + Evaluate and compare different approaches
++ Code our own SAX generalist method 
++ Exploring and coding 1d-SAX to compare the two algorithm
++ Code our HMM to classify data depending on pattern
 
 # TO EXPLORE
 + [Time series Analysis](https://sflscientific.com/data-science/) 
