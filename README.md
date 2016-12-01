@@ -9,7 +9,6 @@ Why not having the same approach than alignement of genomic sequences. We first 
 # TODO
 
 + Search more information about home made / cheap EEG
-+ Documentation time series analysis
 + Possible applications
 + Evaluate and compare different approaches
 
