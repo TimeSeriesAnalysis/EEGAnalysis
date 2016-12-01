@@ -4,7 +4,16 @@ First step of test and exploration of methods to analyse different kind of curve
 Our goal is to create or use algorithm enabling us to classify or to clusterize EEG for medical purposes. But if we succeed, the goal would be to get that more general and use that kind of approch in different fields.
 
 # IDEAS 
-Why not having the same approach than alignement of genomic sequences. We first extract pattern with NN or other tools and then define a certain distance (kind of threshold). This threshold defines if we add the time serie analyzed as a new pattern or if it is similar to one detected before . 
+## First operations applied to the time series
++ Use of [SAX](https://github.com/dolaameng/pysax) in order to convert our time series into a sequence of letters.
++ If this approach is not sufficient we plan to use ?Short time Fourier transform to map locally our time series into a frequency representation and use more traditional methods
+
+## Classifying pieces of time series  using HMM
++ Apply an HMM to the sequence of letters. 
+
+## STDP neural network
++ See with Ilya if such a method could be applied
+
 
 # TODO
 
