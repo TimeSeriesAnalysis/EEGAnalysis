@@ -36,3 +36,6 @@ Our goal is to create or use algorithm enabling us to classify or to clusterize 
 + [Riemann](https://github.com/alexandrebarachant/pyRiemann)
 + [Dynamic time wrapping](https://en.wikipedia.org/wiki/Dynamic_time_warping)
 + [Python library for EEG Analysis](http://ptsa.readthedocs.io/en/latest/index.html)
+
+# DATASETS
++ [UCI eeg eyes](https://archive.ics.uci.edu/ml/datasets/EEG+Eye+State)
