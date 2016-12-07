@@ -20,15 +20,14 @@ def sax_transform(ts, n_pieces, alphabet_sz):
     """
     ts: columns of which are time serieses represented by np.array
     n_pieces: number of segments in paa transformation
-    alphabet: the letters to be translated to, e.g. "abcd", "ab"
-    return np.array of ts's sax transformation
+    alphabet_size : number of segment on vertical axis (size of alphabet)
     Steps:
     1. znormalize
     2. ppa
     3. find norm distribution breakpoints by scipy.stats
     4. convert ppa transformation into strings
     """
-    alphabet = range(alphabet_sz)
+    alphabet = range(alphabet_sz) # we choose here a numeric alphabet
     def translate(ts_values):
         return np.asarray([(alphabet[0] if ts_value < thrholds[0]
                 else (alphabet[-1] if ts_value > thrholds[-1]
