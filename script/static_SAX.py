@@ -16,7 +16,7 @@ def paa_transform(ts, n_pieces):
     splitted = np.array_split(ts, n_pieces) ## along columns as we want
     return np.asarray(map(lambda xs: xs.mean(axis = 0), splitted))
 
-def sax_transform(ts, n_pieces, alphabet_sz):
+def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assuption = False):
     """
     ts: columns of which are time serieses represented by np.array
     n_pieces: number of segments in paa transformation
@@ -33,10 +33,12 @@ def sax_transform(ts, n_pieces, alphabet_sz):
                 else (alphabet[-1] if ts_value > thrholds[-1]
                       else alphabet[np.where(thrholds <= ts_value)[0][-1]+1]))
                            for ts_value in ts_values])
-        
+
     ts_norm = znormalization(ts)
-    thrholds = np.percentile(ts_norm,np.linspace(1./alphabet_sz, 
-                                          1-1./alphabet_sz, 
-                                          alphabet_sz-1)*100)
+    quantiles = np.linspace(1./alphabet_sz, 1-1./alphabet_sz, alphabet_sz-1)
+    if use_gaussian_assuption:
+        thrholds = norm.ppf(quantiles)
+    else:
+        thrholds = np.percentile(ts_norm,quantiles*100)
     paa_ts = paa_transform(ts_norm, n_pieces)
     return np.apply_along_axis(translate, 0, paa_ts)
