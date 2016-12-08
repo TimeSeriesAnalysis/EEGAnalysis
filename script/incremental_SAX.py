@@ -15,6 +15,13 @@ class Incremental_SAX:
         self.global_variance = 0 + ZERO_DIVISION_SAFE
         self.global_frequency = 0
         self.ts = []
+        
+    def update_global_mean_variance(self, x):
+        new_global_frequency = self.global_frequency + 1
+        new_global_mean = (self.global_mean * self.global_frequency + x) * 1./ (new_global_frequency)
+        self.global_variance = (self.global_frequency * (self.global_variance + (self.global_mean - new_global_mean)**2) + (x - new_global_mean)**2) * 1./(new_global_frequency)
+        self.global_mean = new_global_mean
+        self.global_frequency = new_global_frequency
 
     def update_window(self,new_point):
         
