@@ -39,3 +39,17 @@ Our goal is to create or use algorithm enabling us to classify or to clusterize 
 
 # DATASETS
 + [UCI eeg eyes](https://archive.ics.uci.edu/ml/datasets/EEG+Eye+State)
+
+# Related topics
++ neurofeeback
++ Event-related potential
+
+# HMM
++ http://ghmm.org
++ http://aimotion.blogspot.fr/2011/05/hidden-markov-models.html
+
+# Dynamic monitoring quantiles
++ http://stats.stackexchange.com/questions/7959/algorithm-to-dynamically-monitor-quantiles
+
+#EEG
++ http://emedicine.medscape.com/article/1139332-overview#a2
