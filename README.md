@@ -53,3 +53,6 @@ Our goal is to create or use algorithm enabling us to classify or to clusterize 
 
 #EEG
 + http://emedicine.medscape.com/article/1139332-overview#a2
+
+## Sensor
++ http://developer.choosemuse.com/research-tools-example/grabbing-data-from-museio-a-few-simple-examples-of-muse-osc-servers#python
