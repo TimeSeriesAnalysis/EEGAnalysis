@@ -9,6 +9,7 @@ BY SHOUYI WANG
 	+ [Pattern recognition in time series](https://pdfs.semanticscholar.org/2f5a/4b8b158117928e9eee7ac6ce7da291ec9bd2.pdf)
 	+ [Master manuscript](http://edoc.hu-berlin.de/master/kleist-caroline-2015-03-25/PDF/kleist.pdf)
 + Other papers (just examples ... you should first focus on reviews)
+	+ [VERY GOOD AND RECENT](http://epubs.siam.org/doi/abs/10.1137/1.9781611974348.41)
 	+ [Mining Hierarchical Temporal Patterns in Multivariate Time Series](https://www.uni-marburg.de/fb12/arbeitsgruppen/datenbionik/pdf/pubs/2004/moerchen04mining)
 	+ [Pattern Matching in Multivariate Time Series Databases Using a Moving-Window Approach](http://pubs.acs.org/doi/abs/10.1021/ie010517z)
 	+ [Deformable Markov model templates for time-series pattern matching](http://dl.acm.org/citation.cfm?id=347109)
