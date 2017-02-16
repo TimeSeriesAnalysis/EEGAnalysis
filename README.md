@@ -56,3 +56,4 @@ Our goal is to create or use algorithm enabling us to classify or to clusterize 
 
 ## Sensor
 + http://developer.choosemuse.com/research-tools-example/grabbing-data-from-museio-a-few-simple-examples-of-muse-osc-servers#python
++ https://www.mindtecstore.com/en/muse#features
