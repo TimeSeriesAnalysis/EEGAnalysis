@@ -8,37 +8,43 @@ from definitions import ZERO_DIVISION_SAFE
 
 class Incremental_SAX:
     """
-        Class gathering all required function to run SAX during an online acquisition of time series
-    We assume that we already have a certain amount of points (500). The result of the algorithm is stored
-    in the attribute called SAX.
-    :param alphabet_size : Length of the alphabet which is numeric
-    :type alphabet_size : Integer
-    :param nb_pieces : Number of sub-window (discretization) composing the sliding window
-    :type nb_pieces : Integer
-    :param nb_inside_segment : Length of each sub-window(discretization) composing the sliding window
-    :type nb_inside_segment : Integer
-    :param time_serie : data to transform
-    :type time_serie : numpy array of floats number
+        Class gathering all required function to run SAX during an online acquisition of time series.
+        We assume that we already have a certain amount of points (500). The result of the algorithm is stored
+        in the attribute called SAX.
+        :param alphabet_size : Length of the alphabet which is numeric
+        :type alphabet_size : Integer
+        :param nb_subwindow : Number of sub-window (discretization) composing the sliding window
+        :type nb_subwindow : Integer
+        :param length_subwindow : Length of each sub-window(discretization) composing the sliding window
+        :type length_subwindow : Integer
+        :param time_serie : Data to transform
+        :type time_serie : Numpy array of time series (floats numbers)
     """
-    def __init__(self, alphabet_size, nb_pieces ,nb_inside_segment,time_serie):
+    def __init__(self, alphabet_size, nb_subwindow , length_subwindow, time_serie):
         self.alphabet_size = alphabet_size
         self.alphabet = range(alphabet_size)
-        self.nb_subdivision = nb_pieces
-        self.sublen = nb_inside_segment
-        self.window_size = nb_pieces * self.sublen
-        self.window = np.asarray(time_serie[:self.window_size])
-        self.oldest = 0
-        self.global_mean = self.window.mean(axis = 0)
-        self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE
-        self.global_frequency = self.window_size
-        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.array_split(self.window, self.nb_subdivision)))
-        self.percentile = np.percentile((time_serie - time_serie.mean())/time_serie.std(),np.linspace(1./alphabet_size, 1-1./alphabet_size, alphabet_size-1)*100)
+        self.nb_subwindow = nb_subwindow
+        self.len_subwindow = length_subwindow
+        self.window_size = self.nb_subwindow * self.len_subwindow                     #The sliding window size is defined as the product of the number of sub-window and its size
+        self.oldest = 0                                                                                                #Define the first point which will be removed of the sliding frame (the oldest one) 
+        self.global_mean = self.window.mean(axis = 0)                                          #Mean of each series contained in the sliding window
+        self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
+        self.global_frequency = self.window_size                                                      #Frequency used to normalize the data each time we have a new point
+        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.array_split(self.window, self.nb_subdivision)))         #Numpy array containing the mean of each subwindow 
+        self.percentile = np.percentile((time_serie - time_serie.mean())/time_serie.std(),np.linspace(1./alphabet_size, 1-1./alphabet_size, alphabet_size-1)*100)       #percentiles of the normalized initial data
         self.znormalization()
-        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentile[0] else (self.alphabet[-1] if ts_value > self.percentile[-1] else self.alphabet[np.where(self.percentile <= ts_value)[0][-1]+1])) for ts_value in self.window])
+        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentile[0] else (self.alphabet[-1] if ts_value > self.percentile[-1] else self.alphabet[np.where(self.percentile <= ts_value)[0][-1]+1])) for ts_value in self.window])          #Compute SAX transformation on initial data 
         self.unormalization()
 
+
     def update_window(self,new_point):
+        """
+            Add the new collected point and remove the oldest one in window attribute.
+            :param new_point : New point collected to add
+            :type new_point : Float number
+        """
         self.window[self.oldest] = new_point
+
       
     def update_global_mean_variance(self, new_point):
         new_global_frequency = self.global_frequency + 1
