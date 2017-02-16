@@ -7,8 +7,19 @@ from definitions import ZERO_DIVISION_SAFE
 # TO DO : CHECK IF WE HAVE A COLUMN ARRAY
 
 class Incremental_SAX:
-    """Class gathering all required function to run SAX during an online acquisition of time series
-    We assume that we already have a certain amount of points (500)"""
+    """
+        Class gathering all required function to run SAX during an online acquisition of time series
+    We assume that we already have a certain amount of points (500). The result of the algorithm is stored
+    in the attribute called SAX.
+    :param alphabet_size : Length of the alphabet which is numeric
+    :type alphabet_size : Integer
+    :param nb_pieces : Number of sub-window (discretization) composing the sliding window
+    :type nb_pieces : Integer
+    :param nb_inside_segment : Length of each sub-window(discretization) composing the sliding window
+    :type nb_inside_segment : Integer
+    :param time_serie : data to transform
+    :type time_serie : numpy array of floats number
+    """
     def __init__(self, alphabet_size, nb_pieces ,nb_inside_segment,time_serie):
         self.alphabet_size = alphabet_size
         self.alphabet = range(alphabet_size)
