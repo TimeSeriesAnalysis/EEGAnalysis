@@ -39,19 +39,25 @@ class Incremental_SAX:
 
     def update_window(self,new_point):
         """
-            Add the new collected point and remove the oldest one in window attribute.
+            Add the new collected point and remove the oldest one in window attribute. It also updates the sliding window's features (mean, frequency and variance)
             :param new_point : New point collected to add
             :type new_point : Float number
         """
         self.window[self.oldest] = new_point
-
-      
-    def update_global_mean_variance(self, new_point):
         new_global_frequency = self.global_frequency + 1
         new_global_mean = (self.global_mean * self.global_frequency + new_point) * 1./ (new_global_frequency)
         self.global_variance = (self.global_frequency * (self.global_variance + (self.global_mean - new_global_mean)**2) + (new_point - new_global_mean)**2) * 1./(new_global_frequency)
         self.global_mean = new_global_mean
         self.global_frequency = new_global_frequency
+
+
+    # def update_global_mean_variance(self, new_point):                 Just a temporary solution
+    #     new_global_frequency = self.global_frequency + 1
+    #     new_global_mean = (self.global_mean * self.global_frequency + new_point) * 1./ (new_global_frequency)
+    #     self.global_variance = (self.global_frequency * (self.global_variance + (self.global_mean - new_global_mean)**2) + (new_point - new_global_mean)**2) * 1./(new_global_frequency)
+    #     self.global_mean = new_global_mean
+    #     self.global_frequency = new_global_frequency
+
 
     def znormalization(self):
         self.window = (self.window - self.global_mean) / (np.sqrt(self.global_variance)+ZERO_DIVISION_SAFE)
