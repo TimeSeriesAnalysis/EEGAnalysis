@@ -1,7 +1,9 @@
+# Import already existing modules
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import norm
+
+# Import our own code
 from definitions import ZERO_DIVISION_SAFE
+
 
 def znormalization(ts):
     mus = ts.mean(axis = 0)
