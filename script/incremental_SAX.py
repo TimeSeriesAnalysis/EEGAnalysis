@@ -27,16 +27,16 @@ class Incremental_SAX:
         self.nb_subwindow = nb_subwindow
         self.len_subwindow = length_subwindow
         self.window_size = self.nb_subwindow * self.len_subwindow                     #The sliding window size is defined as the product of the number of sub-window and its size
-        self.window = np.asarray(time_serie[:self.window_size])                            #Creation of the sliding window from the parameter containing starting data. Numpy array
+        self.window = np.asarray(time_serie[:self.window_size])                            #Creation of the sliding window containing raw data. It must be a numpy array
         self.oldest = 0                                                                                                #Define index of the first point removed when updating the sliding frame (the oldest one) 
         self.global_mean = self.window.mean(axis = 0)                                          #Mean of each series contained in the sliding window
         self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
         self.global_frequency = self.window_size                                                      #Frequency used to normalize the data each time we have a new point
-        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.array_split(self.window, self.nb_subdivision)))         #Numpy array containing the mean of each subwindow 
+        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.array_split(self.window, self.nb_subwindow)))         #Numpy array containing the mean of each subwindow 
         self.percentile = np.percentile((self.window - self.global_mean) / self.global_variance, np.linspace(1. / self.alphabet_size, 1 - 1. / alphabet_size, alphabet_size - 1) * 100)       #percentiles of the normalized initial data
-        self.znormalization()
-        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentile[0] else (self.alphabet[-1] if ts_value > self.percentile[-1] else self.alphabet[np.where(self.percentile <= ts_value)[0][-1] + 1])) for ts_value in self.window])          #Compute SAX transformation on initial data 
-        self.unormalization()
+        # self.znormalization()
+        # self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentile[0] else (self.alphabet[-1] if ts_value > self.percentile[-1] else self.alphabet[np.where(self.percentile <= ts_value)[0][-1] + 1])) for ts_value in self.window])          #Compute SAX transformation on initial data 
+        # self.unormalization()
 
 
     def update_window(self,new_point):
@@ -72,8 +72,7 @@ class Incremental_SAX:
         """
             Perform the discretization and store the transformation into SAX attribute.
         """
-        for index,mean in enumerate(self.subwin_means) :
-            print 
+        for index, mean in enumerate(self.subwin_means) :
             oldest_first = self.oldest + self.len_subwindow * index
             oldest_next = self.oldest + self.len_subwindow * (index + 1)
             if oldest_first >= self.window_size :
@@ -111,16 +110,29 @@ class Incremental_SAX:
             :param new_point : New collected point to add
             :type new_point : Float number
         """
-        self.update_window(new_point)
+        #self.update_window(new_point)
         #self.update_global_mean_variance(new_point)        #useless since the merge of two functions
         self.znormalization()
         self.PAA_SAX_transform()
         self.unormalization()
 
 
+    def see(self):
+        """
+            Enabling to visualize step by step
+        """
+        #self.update_window(new_point)
+        #self.update_global_mean_variance(new_point)        #useless since the merge of two functions
+        self.znormalization()
+        self.PAA_SAX_transform()
+        self.unormalization()
+
 if __name__ == "__main__":
     isax = Incremental_SAX(10,10,10,np.random.randn(500))
-    print isax.percentile
-    print isax.SAX
-    print isax.window
-    isax.run(10)
+    print "INITIAL DATA : ", isax.window
+    isax.see()
+    print "SAX TRANSFORMATION : ", isax.SAX
+    # print isax.percentile
+    # print isax.SAX
+    # print isax.window
+    #isax.run(np.random.randn)
