@@ -29,8 +29,8 @@ def paa_transform(data, nb_interval):
         :returns : PAA transform (mean value of each interval)
         :rtype : Numpy array of floats
     """
-    splitted = np.array_split(data, nb_interval) ## along columns as we want
-    return np.asarray(map(lambda xs: xs.mean(axis = 0), splitted))
+    splitted = np.hsplit(ztime_serie, nb_interval)
+    return np.asarray(map(lambda xs: xs.mean(axis = 1), splitted)).T
 
 
 def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assuption = False):
