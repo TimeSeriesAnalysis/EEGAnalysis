@@ -1,22 +1,37 @@
 # Import already existing modules
 import numpy as np
+from scipy.stats import norm
 
 # Import our own code
 from definitions import ZERO_DIVISION_SAFE
 
 
-def znormalization(ts):
-    mus = ts.mean(axis = 0)
-    stds = ts.std(axis = 0)
-    return (ts - mus) / (stds+ZERO_DIVISION_SAFE)
+def znormalization(data):
+    """
+        Return normalized data (assumed to be a numpy array) by substracting the mean value and divinding by the standard deviation
+        :param data : Time-series data. It can contain different signals (one per row)
+        :type data : Numpy array of floats
+        :returns: Normalized data
+        :rtype: Numpy floats array of exactly data's dimension
+    """
+    mus = data.mean(axis = 0)
+    stds = data.std(axis = 0)
+    return (data - mus) / (stds+ZERO_DIVISION_SAFE)
 
-def paa_transform(ts, n_pieces):
+
+def paa_transform(data, nb_interval):
     """
-    ts: the columns of which are time series represented by e.g. np.array
-    n_pieces: M equally sized piecies into which the original ts is splitted
+        Perform and return PAA transformation on data for an amount of interval.
+        :param data : Time-series data. It can contain different signals (one per row)
+        :type data : Numpy array of floats
+        :param nb_interval : Number of discretization over the whole data.
+        :type nb_interval : Integer
+        :returns : PAA transform (mean value of each interval)
+        :rtype : Numpy array of floats
     """
-    splitted = np.array_split(ts, n_pieces) ## along columns as we want
+    splitted = np.array_split(data, nb_interval) ## along columns as we want
     return np.asarray(map(lambda xs: xs.mean(axis = 0), splitted))
+
 
 def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assuption = False):
     """
