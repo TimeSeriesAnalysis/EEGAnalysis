@@ -14,8 +14,8 @@ def znormalization(data):
         :returns: Normalized data
         :rtype: Numpy floats array of exactly data's dimension
     """
-    mus = data.mean(axis = 0)
-    stds = data.std(axis = 0)
+    mus = data.mean(axis = 1)
+    stds = data.std(axis = 1)
     return (data - mus) / (stds+ZERO_DIVISION_SAFE)
 
 
