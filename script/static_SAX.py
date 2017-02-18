@@ -29,7 +29,7 @@ def paa_transform(data, nb_interval):
         :returns : PAA transform (mean value of each interval)
         :rtype : Numpy array of floats
     """
-    splitted = np.hsplit(ztime_serie, nb_interval)
+    splitted = np.hsplit(data, nb_interval)
     return np.asarray(map(lambda xs: xs.mean(axis = 1), splitted)).T
 
 
