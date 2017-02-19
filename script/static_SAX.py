@@ -28,6 +28,7 @@ def clean_outliers(data, ampl):
     return np.apply_along_axis(clean_row_outliers, 1, data, ampl)
 
 
+
 def znormalization(data):
     """
         Return normalized data (assumed to be a numpy array) by substracting the mean value and divinding by the standard deviation
@@ -39,6 +40,7 @@ def znormalization(data):
     mus = data.mean(axis = 1).reshape([data.shape[0], 1])
     stds = data.std(axis = 1).reshape([data.shape[0], 1])
     return (data - mus) / (stds+ZERO_DIVISION_SAFE)
+
 
 
 def paa_transform(data, nb_interval):
@@ -68,10 +70,10 @@ def paa_to_alphabet(ts_values, alphabet, quantiles):
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
-    return np.asarray([(alphabet[0] if ts_value < quantiles[0]
+    return np.asarray([[(alphabet[0] if ts_value < quantiles[0]
             else (alphabet[-1] if ts_value > quantiles[-1]
                   else alphabet[np.where(quantiles <= ts_value)[0][-1]+1]))
-                       for ts_value in ts_values])
+                       for ts_value in rows] for rows in ts_values])
 
 
 
