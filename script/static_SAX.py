@@ -70,10 +70,10 @@ def paa_to_alphabet(paa_values, alphabet, percentils):
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
-    return np.asarray([[(alphabet[0] if ts_value < percentils[0]
-            else (alphabet[-1] if ts_value > percentils[-1]
-                  else alphabet[np.where(percentils <= ts_value)[0][-1]+1]))
-                       for ts_value in rows] for rows in paa_values])
+    return np.asarray([[(alphabet[0] if ts_value < percentils[index][0]
+            else (alphabet[-1] if ts_value > percentils[index][-1]
+                  else alphabet[np.where(percentils[index] <= ts_value)[0][-1]+1]))
+                       for ts_value in rows] for index,rows in paa_values])
 
 
 
@@ -95,8 +95,8 @@ def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     ts_norm = znormalization(ts)
     quantils = np.linspace(1./alphabet_sz, 1-1./alphabet_sz, alphabet_sz-1)
     if use_gaussian_assumption:
-        thrholds = norm.ppf(quantils)
+        thrholds = [norm.ppf(quantils) for i in ts.shape[0]] 
     else:
-        thrholds = np.percentile(ts_norm,quantils*100)
+        thrholds = np.apply_along_axis(np.percentile,1,i,quantils*100)
     paa_ts = paa_transform(ts_norm, n_pieces)
     return paa_to_alphabet(paa_ts, alphabet, thrholds)
