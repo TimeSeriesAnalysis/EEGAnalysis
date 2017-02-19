@@ -58,11 +58,11 @@ def paa_transform(data, nb_interval):
 
 
 
-def paa_to_alphabet(ts_values, alphabet, quantiles):
+def paa_to_alphabet(paa_values, alphabet, quantiles):
     """
         Translate PAA transformed data into an alphabet.
-        :param ts_values : PAA transformed data.
-        :type ts_values : Numpy array of integers
+        :param paa_values : PAA transformed data.
+        :type paa_values : Numpy array of integers
         :param alphabet : Alphabet you want (can be numeric, alphanumeric or only letters)
         :type alphabet : List of what you wan
         :param quantiles : Quantiles of original data you want to use to translate.
@@ -70,10 +70,10 @@ def paa_to_alphabet(ts_values, alphabet, quantiles):
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
-    return np.asarray([[(alphabet[0] if ts_value < quantiles[0]
-            else (alphabet[-1] if ts_value > quantiles[-1]
-                  else alphabet[np.where(quantiles <= ts_value)[0][-1]+1]))
-                       for ts_value in rows] for rows in ts_values])
+    return np.asarray([[(alphabet[0] if ts_value < thrholds[0]
+            else (alphabet[-1] if ts_value > thrholds[-1]
+                  else alphabet[np.where(thrholds <= ts_value)[0][-1]+1]))
+                       for ts_value in rows] for rows in paa_values])
 
 
 
@@ -99,4 +99,4 @@ def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     else:
         thrholds = np.percentile(ts_norm,quantils*100)
     paa_ts = paa_transform(ts_norm, n_pieces)
-    return np.apply_along_axis(paa_to_alphabet, 1, paa_ts, (alphabet, thrholds))
+    return paa_to_alphabet(paa_ts, alphabet, thrholds)
