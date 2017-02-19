@@ -17,7 +17,7 @@ def clean_outliers(data, ampl):
         :rtype : Numpy array of floats
     """
     mean_rows = data.mean(axis = 1).reshape([data.shape[0], 1])
-    std_rows = ata.std(axis = 1).reshape([data.shape[0], 1])
+    std_rows = data.std(axis = 1).reshape([data.shape[0], 1])
     data[data < mean_rows - 3 * std_rows] = mean_rows - 3 * std_rows
     data[data > mean_rows + 3 * std_rows] = mean_rows + 3 * std_rows
     return data
