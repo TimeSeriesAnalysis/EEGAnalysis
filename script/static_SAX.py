@@ -97,6 +97,6 @@ def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     if use_gaussian_assumption:
         thrholds = np.asarray([norm.ppf(quantils) for i in xrange(ts.shape[0])])
     else:
-        thrholds = np.apply_along_axis(np.percentile,1,i,quantils*100)
+        thrholds = np.apply_along_axis(np.percentile, 1, ts_norm, quantils * 100)
     paa_ts = paa_transform(ts_norm, n_pieces)
     return paa_to_alphabet(paa_ts, alphabet, thrholds)
