@@ -6,6 +6,23 @@ from scipy.stats import norm
 from definitions import ZERO_DIVISION_SAFE
 
 
+def clean_outliers(data, ampl):
+    """
+        Change all values of data not includes in the intervale [mean - amplitude*sd ; mean +amplitude*sd] by the limits.
+        :param data : Contains all the times series (one by row)
+        :type data : Numpy array of floats
+        :param ampl : Regulate the amplitude of the interval
+        :type ampl : Float
+        :returns : Filtered data
+        :rtype : Numpy array of floats
+    """
+    mean_rows = data.mean(axis = 1).reshape([data.shape[0], 1])
+    std_rows = ata.std(axis = 1).reshape([data.shape[0], 1])
+    data[data < mean_rows - 3 * std_rows] = mean_rows - 3 * std_rows
+    data[data > mean_rows + 3 * std_rows] = mean_rows + 3 * std_rows
+    return data
+
+
 def znormalization(data):
     """
         Return normalized data (assumed to be a numpy array) by substracting the mean value and divinding by the standard deviation
