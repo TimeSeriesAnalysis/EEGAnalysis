@@ -33,16 +33,19 @@ def paa_transform(data, nb_interval):
     return np.asarray(map(lambda xs: xs.mean(axis = 1), splitted)).T
 
 
-def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assuption = False):
+def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     """
-    ts: columns of which are time serieses represented by np.array
-    n_pieces: number of segments in paa transformation
-    alphabet_size : number of segment on vertical axis (size of alphabet)
-    Steps:
-    1. znormalize
-    2. ppa
-    3. find norm distribution breakpoints by scipy.stats
-    4. convert ppa transformation into strings
+        Perform SAX transformation. First it normalizes data, then it applies PAA transformation and translate it into an alphabet (numeric here).
+        :param ts : Times series to transform
+        :type ts : Numpy array. Each row is a time serie.
+        :param n_pieces : Number of segment in paa transformation
+        :type n_pieces : Integer
+        :param alphabet_sz : Length of the alhpabet you want (number of segment on the vertical axis)
+        :type alphabet_sz : Integer
+        :param use_gaussian_assumption : Tells if you want to use gaussian percentile or take real distribution percentile.
+        :type use_gaussian_assumption : Boolean
+        :returns : SAX transformed data
+        :rtype : Numpy array of integers.
     """
     alphabet = range(alphabet_sz) # we choose here a numeric alphabet
     def translate(ts_values):
