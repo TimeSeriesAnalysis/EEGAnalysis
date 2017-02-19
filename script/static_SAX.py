@@ -73,7 +73,7 @@ def paa_to_alphabet(paa_values, alphabet, percentils):
     return np.asarray([[(alphabet[0] if ts_value < percentils[index][0]
             else (alphabet[-1] if ts_value > percentils[index][-1]
                   else alphabet[np.where(percentils[index] <= ts_value)[0][-1]+1]))
-                       for ts_value in rows] for index,rows in paa_values])
+                       for ts_value in rows] for index,rows in enumerate(paa_values)])
 
 
 
