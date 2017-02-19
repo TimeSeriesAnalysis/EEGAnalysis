@@ -58,23 +58,21 @@ def paa_transform(data, nb_interval):
 
 
 
-def paa_to_alphabet(paa_values, alphabet, quantiles):
+def paa_to_alphabet(paa_values, alphabet, percentils):
     """
         Translate PAA transformed data into an alphabet.
         :param paa_values : PAA transformed data.
         :type paa_values : Numpy array of integers
         :param alphabet : Alphabet you want (can be numeric, alphanumeric or only letters)
         :type alphabet : List of what you wan
-        :param quantiles : Quantiles of original data you want to use to translate.
-        :type quantiles : List or numpy array of Floats
+        :param percentils : Quantiles of original data you want to use to translate.
+        :type percentils : List or numpy array of Floats
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
-    print "PAA : ", paa_values
-    print "index 0 ", paa_values[0]
-    return np.asarray([[(alphabet[0] if ts_value < thrholds[0]
-            else (alphabet[-1] if ts_value > thrholds[-1]
-                  else alphabet[np.where(thrholds <= ts_value)[0][-1]+1]))
+    return np.asarray([[(alphabet[0] if ts_value < percentils[0]
+            else (alphabet[-1] if ts_value > percentils[-1]
+                  else alphabet[np.where(percentils <= ts_value)[0][-1]+1]))
                        for ts_value in rows] for rows in paa_values])
 
 
