@@ -70,6 +70,7 @@ def paa_to_alphabet(paa_values, alphabet, percentils):
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
+    print paa_values
     for row in paa_values : 
         print row
     return np.asarray([[(alphabet[0] if ts_value < percentils[0]
