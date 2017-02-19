@@ -91,10 +91,10 @@ def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     """
     alphabet = range(alphabet_sz) # we choose here a numeric alphabet
     ts_norm = znormalization(ts)
-    quantiles = np.linspace(1./alphabet_sz, 1-1./alphabet_sz, alphabet_sz-1)
+    quantils = np.linspace(1./alphabet_sz, 1-1./alphabet_sz, alphabet_sz-1)
     if use_gaussian_assumption:
-        thrholds = norm.ppf(quantiles)
+        thrholds = norm.ppf(quantils)
     else:
-        thrholds = np.percentile(ts_norm,quantiles*100)
+        thrholds = np.percentile(ts_norm,quantils*100)
     paa_ts = paa_transform(ts_norm, n_pieces)
     return np.apply_along_axis(paa_to_alphabet, 1, paa_ts, (alphabet, thrholds))
