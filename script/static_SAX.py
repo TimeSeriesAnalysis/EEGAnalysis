@@ -70,6 +70,8 @@ def paa_to_alphabet(paa_values, alphabet, quantiles):
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
+    print "PAA : ", paa_values
+    print "index 0 ", paa_values[0]
     return np.asarray([[(alphabet[0] if ts_value < thrholds[0]
             else (alphabet[-1] if ts_value > thrholds[-1]
                   else alphabet[np.where(thrholds <= ts_value)[0][-1]+1]))
