@@ -58,24 +58,22 @@ def paa_transform(data, nb_interval):
 
 
 
-def paa_to_alphabet(paa_values, alphabet, quantiles):
+def paa_to_alphabet(paa_values, alphabet, percentils):
     """
         Translate PAA transformed data into an alphabet.
         :param paa_values : PAA transformed data.
         :type paa_values : Numpy array of integers
         :param alphabet : Alphabet you want (can be numeric, alphanumeric or only letters)
         :type alphabet : List of what you wan
-        :param quantiles : Quantiles of original data you want to use to translate.
-        :type quantiles : List or numpy array of Floats
+        :param percentils : Quantiles of original data you want to use to translate.
+        :type percentils : List or numpy array of Floats
         :returns : Equivalent alphabet of input data
         :rtype : Numpy array of alphabet.
     """
-    print "PAA : ", paa_values
-    print "index 0 ", paa_values[0]
-    return np.asarray([[(alphabet[0] if ts_value < thrholds[0]
-            else (alphabet[-1] if ts_value > thrholds[-1]
-                  else alphabet[np.where(thrholds <= ts_value)[0][-1]+1]))
-                       for ts_value in rows] for rows in paa_values])
+    return np.asarray([[(alphabet[0] if ts_value < percentils[index][0]
+            else (alphabet[-1] if ts_value > percentils[index][-1]
+                  else alphabet[np.where(percentils[index] <= ts_value)[0][-1]+1]))
+                       for ts_value in rows] for index,rows in enumerate(paa_values)])
 
 
 
@@ -97,8 +95,8 @@ def sax_transform(ts, n_pieces, alphabet_sz, use_gaussian_assumption = False):
     ts_norm = znormalization(ts)
     quantils = np.linspace(1./alphabet_sz, 1-1./alphabet_sz, alphabet_sz-1)
     if use_gaussian_assumption:
-        thrholds = norm.ppf(quantils)
+        thrholds = np.asarray([norm.ppf(quantils) for i in xrange(ts.shape[0])])
     else:
-        thrholds = np.percentile(ts_norm,quantils*100)
+        thrholds = np.apply_along_axis(np.percentile, 1, ts_norm, quantils * 100)
     paa_ts = paa_transform(ts_norm, n_pieces)
     return paa_to_alphabet(paa_ts, alphabet, thrholds)
