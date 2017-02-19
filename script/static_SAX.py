@@ -10,8 +10,8 @@ from definitions import ZERO_DIVISION_SAFE
 def clean_row_outliers(row, ampl):
     mean = row.mean()
     sd = row.std()
-    row[row < mean - ampl * sd] = row < mean - ampl * sd
-    row[row > mean + ampl * sd] = row > mean + ampl * sd
+    row[row < mean - ampl * sd] = mean - ampl * sd
+    row[row > mean + ampl * sd] = mean + ampl * sd
     return row
 
 
