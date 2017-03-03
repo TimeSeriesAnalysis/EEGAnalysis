@@ -1,59 +1,40 @@
-# starting
+# Objective
 
-First step of test and exploration of methods to analyse different kind of curves.
-Our goal is to create or use algorithm enabling us to classify or to clusterize EEG for medical purposes. But if we succeed, the goal would be to get that more general and use that kind of approch in different fields.
+Our goal is to create or use algorithm enabling us to classify or to clusterize EEG signals for medical purposes (epilepsy detection ...).
+The long term goal is to make our approaches more general and use them to analyse time series in different fields.
 
-# IDEAS 
-## First operations applied to the time series
-+ Use of [SAX](https://github.com/dolaameng/pysax) in order to convert our time series into a sequence of letters.
-+ If this approach is not sufficient we plan to use ?Short time Fourier transform to map locally our time series into a frequency representation and use more traditional methods
+# [Symbolic Aggregate approXimation Algorithm (SAX)](https://timeseriesanalysis.github.io/static_SAX.html)
+The aim of this algorithm is to convert a time serie into a sequence of letters. An incremental version of SAX has also been produced
+If this approach is not sufficient we plan to use short time Fourier transform to map locally our time series
+into a frequency representation and use more traditional methods
 
-## Classifying pieces of time series  using HMM
-+ Apply an HMM to the sequence of letters. 
+# [Classifying pieces of time series using Hidden Markov Model (HMM)](https://timeseriesanalysis.github.io/HMM.html)
+Apply an HMM to the sequence of letters to produce a probabilistic model of the sequence of letters obtained from the EEG signal
 
-## STDP neural network
-+ See with Ilya if such a method could be applied
+# Classifying pieces of time series using Recurrent Neural Networks
+Apply a RNN to the sequence of letters to produce a model of the sequence of letters obtained from the EEG signal
 
-
-# TODO
-
-+ Search more information about home made / cheap EEG
-+ Possible applications
-+ Evaluate and compare different approaches
-+ Exploring and coding 1d-SAX to compare the two algorithm
-+ Code our HMM to classify data depending on pattern
-+ Start building "online" version
-
-#UNFINISHED TASKS
-+ Code our own SAX generalist method 
-
-# TO EXPLORE
-+ [Time series Analysis](https://sflscientific.com/data-science/) 
-+ [Kaggle challenge Winner on EEG prediction](https://www.kaggle.com/c/grasp-and-lift-eeg-detection/)
-+ [ARMA](https://bicorner.com/2015/11/16/time-series-analysis-using-ipython/)
-
-# TOOLS ?
-+ [Riemann](https://github.com/alexandrebarachant/pyRiemann)
-+ [Dynamic time wrapping](https://en.wikipedia.org/wiki/Dynamic_time_warping)
-+ [Python library for EEG Analysis](http://ptsa.readthedocs.io/en/latest/index.html)
-
-# DATASETS
+# Useful links
+## DATASETS
 + [UCI eeg eyes](https://archive.ics.uci.edu/ml/datasets/EEG+Eye+State)
 
-# Related topics
-+ neurofeeback
-+ Event-related potential
+## Related topics
++ [neurofeeback](https://en.wikipedia.org/wiki/Neurofeedback)
++ [Event-related potential](https://en.wikipedia.org/wiki/Event-related_potential)
 
-# HMM
-+ http://ghmm.org
-+ http://aimotion.blogspot.fr/2011/05/hidden-markov-models.html
+## Hidden Markov Models
++ [ghmm](http://ghmm.org)
++ [blog post](http://aimotion.blogspot.fr/2011/05/hidden-markov-models.html)
 
-# Dynamic monitoring quantiles
-+ http://stats.stackexchange.com/questions/7959/algorithm-to-dynamically-monitor-quantiles
+## Dynamic monitoring quantiles
++ [Dynamic monitoring quantiles stackoverflow](http://stats.stackexchange.com/questions/7959/algorithm-to-dynamically-monitor-quantiles)
 
-#EEG
-+ http://emedicine.medscape.com/article/1139332-overview#a2
+## EEG
++ [EEG](http://emedicine.medscape.com/article/1139332-overview#a2)
 
-## Sensor
-+ http://developer.choosemuse.com/research-tools-example/grabbing-data-from-museio-a-few-simple-examples-of-muse-osc-servers#python
-+ https://www.mindtecstore.com/en/muse#features
+# TODO
++ Implement Dynamic monitoring quantiles to the incremental version of SAX
++ Test if SAX transformation is sufficient or FFT transformation is required
++ Evaluate and compare HMM results and RNN 
++ Test on real time EEG signals
+
