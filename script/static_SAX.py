@@ -7,28 +7,6 @@ from definitions import ZERO_DIVISION_SAFE
 
 
 
-def clean_row_outliers(row, ampl):
-    mean = row.mean()
-    sd = row.std()
-    row[row < mean - ampl * sd] = mean - ampl * sd
-    row[row > mean + ampl * sd] = mean + ampl * sd
-    return row
-
-
-def clean_outliers(data, ampl):
-    """
-        Change all values of data not includes in the intervale [mean - amplitude*sd ; mean +amplitude*sd] by the limits.
-        :param data : Contains all the times series (one by row)
-        :type data : Numpy array of floats
-        :param ampl : Regulate the amplitude of the interval
-        :type ampl : Float
-        :returns : Filtered data
-        :rtype : Numpy array of floats
-    """
-    return np.apply_along_axis(clean_row_outliers, 1, data, ampl)
-
-
-
 def znormalization(data):
     """
         Return normalized data (assumed to be a numpy array) by substracting the mean value and divinding by the standard deviation
