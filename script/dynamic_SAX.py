@@ -7,36 +7,36 @@ from definitions import ZERO_DIVISION_SAFE
 
 
 
-class Incremental_SAX:
+class Dynamic_SAX:
     """
         Class gathering all required function to run SAX during an online acquisition of time series.
         Everything is implemented to handle multi-dimensional signals.
-        We assume that we already have a certain amount of points chosen by the user through two following parameters. The result of the algorithm is stored
-        in the attribute called SAX.
-        :param alphabet_size : Length of the alphabet which is numeric
-        :type alphabet_size : Integer
-        :param nb_subwindow : Number of sub-window (discretization) composing the sliding window
+        We assume that we already have a certain amount of points chosen by the user through two following parameters. The result of the algorithm is stored in the attribute called SAX.
+        :param alphabet : Desired alphabet used to transform your signal
+        :type alphabet : Lis of whatever you want
+        :param nb_subwindow : Number of sub-window (interval of discretization) composing the sliding window
         :type nb_subwindow : Integer
-        :param length_subwindow : Length of each sub-window(discretization) composing the sliding window
+        :param length_subwindow : Length of each sub-window(interval of discretization) composing the sliding window
         :type length_subwindow : Integer
-        :param time_serie : Data to transform
-        :type time_serie : Numpy array of time series (floats numbers)
+        :param time_series : Data to transform
+        :type time_series : Numpy array of time series (floats numbers) each row must be a time serie.
     """
-    def __init__(self, alphabet_size, nb_subwindow, length_subwindow, time_serie):
-        self.alphabet_size = alphabet_size
-        self.alphabet = range(alphabet_size)
+    def __init__(self, alphabet, nb_subwindow, length_subwindow, time_series):
+        self.alphabet = alphabet
+        self.alphabet_size = length(alphabet)
         self.nb_subwindow = nb_subwindow
         self.len_subwindow = length_subwindow
         self.window_size = self.nb_subwindow * self.len_subwindow                     #The sliding window size is defined as the product of the number of sub-window and its size
-        self.window = np.asarray(time_serie[:self.window_size])                            #Creation of the sliding window containing raw data. It must be a numpy array
-        self.oldest = 0                                                                                                #Define index of the first point removed when updating the sliding frame (the oldest one) 
-        self.global_mean = self.window.mean(axis = 0)                                          #Mean of each series contained in the sliding window
-        self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
-        self.global_frequency = self.window_size                                                      #Frequency used to normalize the data each time we have a new point
-        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.array_split(self.window, self.nb_subwindow)))         #Numpy array containing the mean of each subwindow 
-        self.percentile = np.percentile((self.window - self.global_mean) / self.global_variance, np.linspace(1. / self.alphabet_size, 1 - 1. / alphabet_size, alphabet_size - 1) * 100)       #percentiles of the normalized initial data
+        self.window = time_series[:,:self.window_size]                                                #Creation of the sliding window containing raw data. It must be a numpy array
+        self.sorted_distribution = np.sort(self.window, axis = 1, kind = 'mergesort')
+        self.index_oldest = 0                                                                                      #Define index of the first point to be removed when we get a new point 
+        self.global_mean = self.window.mean(axis = 1)                                          #Mean of each series contained in the sliding window
+        self.global_variance = self.window.var(axis = 1) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
+        self.percentils_index = [i * (self.window_size - 1) / self.alphabet_size for i in xrange(self.alphabet_size - 1)]
         self.znormalization()
-        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentile[0] else (self.alphabet[-1] if ts_value > self.percentile[-1] else self.alphabet[np.where(self.percentile <= ts_value)[0][-1] + 1])) for ts_value in self.subwin_means])          #Compute a SAX transformation on initial data 
+        self.percentils = [self.window[i] for i in self.percentils_index]
+        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 1), np.hsplit(self.window, self.nb_subwindow))).T         #Numpy array containing the mean of each subwindow 
+        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentils[0] else (self.alphabet[-1] if ts_value > self.percentils[-1] else self.alphabet[np.where(self.percentils <= ts_value)[0][-1] + 1])) for ts_value in self.subwin_means])          #Compute a SAX transformation on initial data 
         self.unormalization()
 
 
@@ -46,12 +46,12 @@ class Incremental_SAX:
             :param new_point : New point collected to add
             :type new_point : Float number
         """
-        self.window[self.oldest] = new_point
-        new_global_frequency = self.global_frequency + 1
-        new_global_mean = (self.global_mean * self.global_frequency + new_point) * 1./ (new_global_frequency)
-        self.global_variance = (self.global_frequency * (self.global_variance + (self.global_mean - new_global_mean)**2) + (new_point - new_global_mean)**2) * 1./(new_global_frequency)
-        self.global_mean = new_global_mean
-        self.global_frequency = new_global_frequency
+        removed_point = self.window[self.index_oldest]
+        temp_mean = self.global_mean
+        self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size
+        self.global_variance = self.global_variance + (new_point**2 -removed_point**2 + 2*temp_mean*(new_point - removed_point) + (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size
+        #TO DO PUT THE POINT IN THE PROPER PLACE TO IT
+        
 
 
     # def update_global_mean_variance(self, new_point):                 Just a temporary solution
@@ -67,9 +67,10 @@ class Incremental_SAX:
             Normalize the whole window by substracting its own mean and dividing by its own variance.
         """
         self.window = (self.window - self.global_mean) / (np.sqrt(self.global_variance)+ZERO_DIVISION_SAFE)
+        self.sorted_distribution  = (self.sorted_distribution - self.global_mean) / (np.sqrt(self.global_variance)+ZERO_DIVISION_SAFE)
 
 
-    def PAA_SAX_transform(self):
+    def PAA_SAX_transform(self):            #To have good quantiles we'll need to find good index for each quntile ---> ordered list splitted in alpha parts then tkae the goods one to have quantiles ! Then to update just need to delete one and search where to put the oher
         """
             Perform the discretization and store the transformation into SAX attribute.
         """
@@ -102,6 +103,7 @@ class Incremental_SAX:
             Perform the exact opposite of znormalization function and un-normalize sliding frame's content.
         """
         self.window =  self.window * np.sqrt(self.global_variance) + self.global_mean
+        self.sorted_distribution =  self.sorted_distribution * np.sqrt(self.global_variance) + self.global_mean
 
 
     def run(self, new_point):
