@@ -1,8 +1,9 @@
 # Import already existing modules
 import numpy as np
-
+from bisect import insort_left as sinsert
+from bisect import bisect_left as sindex
 # Import code from our own files
-from definitions import ZERO_DIVISION_SAFE
+from definitions import *
 
 
 
@@ -21,38 +22,49 @@ class Dynamic_SAX:
         :param time_series : Data to transform
         :type time_series : Numpy array of time series (floats numbers) each row must be a time serie.
     """
-    def __init__(self, alphabet, nb_subwindow, length_subwindow, time_series):
+    def __init__(self, alphabet, nb_subwindow, length_subwindow, time_series, option = VERTICAL):
         self.alphabet = alphabet
-        self.alphabet_size = length(alphabet)
+        self.alphabet_size = len(alphabet)
         self.nb_subwindow = nb_subwindow
         self.len_subwindow = length_subwindow
         self.window_size = self.nb_subwindow * self.len_subwindow                     #The sliding window size is defined as the product of the number of sub-window and its size
-        self.window = time_series[:,:self.window_size]                                                #Creation of the sliding window containing raw data. It must be a numpy array
-        self.sorted_distribution = np.sort(self.window, axis = 1, kind = 'mergesort')
+        self.window = time_series[:,:self.window_size].T                                                #Creation of the sliding window containing raw data. It must be a numpy array
+        self.sorted_distribution = np.sort(self.window, axis = 0, kind = 'mergesort')
         self.index_oldest = 0                                                                                      #Define index of the first point to be removed when we get a new point 
-        self.global_mean = self.window.mean(axis = 1)                                          #Mean of each series contained in the sliding window
-        self.global_variance = self.window.var(axis = 1) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
-        self.percentils_index = [i * (self.window_size - 1) / self.alphabet_size for i in xrange(self.alphabet_size - 1)]
+        self.global_mean = self.window.mean(axis = 0)                                          #Mean of each series contained in the sliding window
+        self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
+        self.percentils_index = np.asarray([i * (self.window_size - 1) / self.alphabet_size for i in xrange(self.alphabet_size - 1)])
         self.znormalization()
-        self.percentils = [self.window[i] for i in self.percentils_index]
-        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 1), np.hsplit(self.window, self.nb_subwindow))).T         #Numpy array containing the mean of each subwindow 
-        self.SAX = np.asarray([(self.alphabet[0] if ts_value < self.percentils[0] else (self.alphabet[-1] if ts_value > self.percentils[-1] else self.alphabet[np.where(self.percentils <= ts_value)[0][-1] + 1])) for ts_value in self.subwin_means])          #Compute a SAX transformation on initial data 
-        self.unormalization()
+        self.percentils = self.sorted_distribution[self.percentils_index,:]#[self.sorted_distribution[i,:] for i in self.percentils_index]
+        self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.vsplit(self.window, self.nb_subwindow)))         #Numpy array containing the mean of each subwindow 
+        self.SAX = np.zeros(self.subwin_means.shape)
+        self.sorted_distribution = self.sorted_distribution.T.tolist()
+        self.percentils = self.percentils.T.tolist()
+        self.PAA_to_SAX()
+        #self.unormalization()
 
 
-    def update_window(self,new_point):
+    def update_global_parameters(self,new_point):
         """
             Add the new collected point and remove the oldest one in window attribute. It also updates the sliding window's features (mean, frequency and variance)
             :param new_point : New point collected to add
             :type new_point : Float number
         """
+        new_point = (new_point - self.global_mean) * 1.0 / self.global_variance 
         removed_point = self.window[self.index_oldest]
         temp_mean = self.global_mean
         self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size
-        self.global_variance = self.global_variance + (new_point**2 -removed_point**2 + 2*temp_mean*(new_point - removed_point) + (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size
-        self.window[self.index_oldest] = new_point
-        
+        temp_var =  self.global_variance
+        self.global_variance = temp_var + (new_point**2 -removed_point**2 - 2*temp_mean*(new_point - removed_point) - (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size        
+        for index,distribution in enumerate(self.sorted_distribution):
+            self.sorted_distribution[index].remove(removed_point[index])
+            sinsert(self.sorted_distribution[index], new_point[index])
+        self.update_percentils()
 
+    def update_percentils(self):
+        for i,percentil in enumerate(self.percentils):
+            for j,value in enumerate(percentil):
+                self.percentils[i][j] = self.sorted_distribution[i][self.percentils_index[j]] 
 
     def znormalization(self):
         """
@@ -62,51 +74,31 @@ class Dynamic_SAX:
         self.sorted_distribution  = (self.sorted_distribution - self.global_mean) / (np.sqrt(self.global_variance)+ZERO_DIVISION_SAFE)
 
 
-    def PAA_SAX_transform(self):            #To have good quantiles we'll need to find good index for each quntile ---> ordered list splitted in alpha parts then tkae the goods one to have quantiles ! Then to update just need to delete one and search where to put the oher
+    def PAA_transform(self, new_point):            #To have good quantiles we'll need to find good index for each quntile ---> ordered list splitted in alpha parts then tkae the goods one to have quantiles ! Then to update just need to delete one and search where to put the oher
         """
             Perform the discretization and store the transformation into SAX attribute.
         """
-        for index, mean in enumerate(self.subwin_means) :
-            oldest_first = self.oldest + self.len_subwindow * index
-            oldest_next = self.oldest + self.len_subwindow * (index + 1)
-            if oldest_first >= self.window_size :
-                oldest_first -= self.window_size
-            if oldest_next >= self.window_size :
-                oldest_next -= self.window_size
-            local_subwin_mean = (mean*self.len_subwindow - self.window[oldest_first] + self.window[oldest_next]) * 1.0 / self.len_subwindow
-            if local_subwin_mean > self.subwin_means[index] :
-                if self.SAX[index] > self.percentile[-1]:
-                    self.SAX[index] = self.percentile[-1]
-                elif local_subwin_mean > self.percentile[self.SAX[index]] :
-                    self.SAX[index] = self.alphabet[np.where(self.percentile[self.SAX[index]:] <= local_subwin_mean)[0][-1]]
-            elif local_subwin_mean < self.subwin_means[index] :
-                if self.SAX[index] - 1 < 0:
-                    self.SAX[index] = 0
-                elif local_subwin_mean < self.percentile[self.SAX[index] - 1]  :
-                    self.SAX[index] = self.alphabet[np.where(self.percentile[:self.SAX[index]] <= local_subwin_mean)[0][-1]]
-            self.subwin_means[index] = local_subwin_mean
-        self.oldest += 1
-        if self.oldest >= self.window_size : 
-            self.oldest = 0
+        for index, mean in enumerate(self.subwin_means):
+            current_oldest = self.index_oldest + self.len_subwindow * index
+            if current_oldest >= self.window_size :
+                current_oldest -= self.window_size
+            self.subwin_means[index] -= self.window[current_oldest] * 1./self.len_subwindow
+        self.window[self.index_oldest] = (new_point - self.global_mean) * 1.0 / self.global_variance
+        for index, mean in enumerate(self.subwin_means):
+            next_oldest = self.index_oldest + self.len_subwindow * (index+1)
+            if next_oldest >= self.window_size :
+                next_oldest -= self.window_size
+            self.subwin_means[index] -= self.window[next_oldest] * 1./self.len_subwindow
+        self.index_oldest += 1
+        if self.index_oldest == self.window_size : 
+            self.index_oldest = 0
 
+    def PAA_to_SAX(self):
+        for i in xrange(self.SAX.shape[0]):
+            for j in xrange(self.SAX.shape[1]):
+                self.SAX[i][j] = self.alphabet[sindex(self.percentils[j],self.subwin_means[i][j])]
 
-    def unormalization(self) :
-        """
-            Perform the exact opposite of znormalization function and un-normalize sliding frame's content.
-        """
-        self.window =  self.window * np.sqrt(self.global_variance) + self.global_mean
-        self.sorted_distribution =  self.sorted_distribution * np.sqrt(self.global_variance) + self.global_mean
-
-
-    def run(self, new_point):
-        """
-            Function gathering all required stage to perform a proper incremental SAX transformation.
-            You need to call this function each time you have a new point.
-            :param new_point : New collected point to add
-            :type new_point : Float number
-        """
-        self.update_window(new_point)
-        #self.update_global_mean_variance(new_point)        #useless since the merge of two functions
-        self.znormalization()
-        self.PAA_SAX_transform()
-        self.unormalization()
+    def SAX_transform(self, new_point):
+        self.update_global_parameters(new_point)
+        self.PAA_transform(new_point)
+        self.PAA_to_SAX()
