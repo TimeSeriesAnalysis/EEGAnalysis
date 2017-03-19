@@ -13,7 +13,7 @@ class Dynamic_SAX:
         Everything is implemented to handle multi-dimensional signals.
         We assume that we already have a certain amount of points chosen by the user through two following parameters. The result of the algorithm is stored in the attribute called SAX.
         :param alphabet : Desired alphabet used to transform your signal
-        :type alphabet : Lis of whatever you want
+        :type alphabet : List of whatever you want
         :param nb_subwindow : Number of sub-window (interval of discretization) composing the sliding window
         :type nb_subwindow : Integer
         :param length_subwindow : Length of each sub-window(interval of discretization) composing the sliding window
@@ -50,16 +50,8 @@ class Dynamic_SAX:
         temp_mean = self.global_mean
         self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size
         self.global_variance = self.global_variance + (new_point**2 -removed_point**2 + 2*temp_mean*(new_point - removed_point) + (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size
-        #TO DO PUT THE POINT IN THE PROPER PLACE TO IT
+        self.window[self.index_oldest] = new_point
         
-
-
-    # def update_global_mean_variance(self, new_point):                 Just a temporary solution
-    #     new_global_frequency = self.global_frequency + 1
-    #     new_global_mean = (self.global_mean * self.global_frequency + new_point) * 1./ (new_global_frequency)
-    #     self.global_variance = (self.global_frequency * (self.global_variance + (self.global_mean - new_global_mean)**2) + (new_point - new_global_mean)**2) * 1./(new_global_frequency)
-    #     self.global_mean = new_global_mean
-    #     self.global_frequency = new_global_frequency
 
 
     def znormalization(self):
