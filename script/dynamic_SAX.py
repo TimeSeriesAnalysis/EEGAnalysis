@@ -33,13 +33,12 @@ class Dynamic_SAX:
         self.index_oldest = 0                                                                                      #Define index of the first point to be removed when we get a new point 
         self.global_mean = self.window.mean(axis = 0)                                          #Mean of each series contained in the sliding window
         self.global_variance = self.window.var(axis = 0) + ZERO_DIVISION_SAFE  #Variance of each series contained in the sliding window
-        self.percentils_index = np.asarray([i * (self.window_size - 1) / self.alphabet_size for i in xrange(1, self.alphabet_size)])
+        self.percentils_index = map(lambda x : (int(x),x%1), [1.*i * (self.window_size - 1) / self.alphabet_size for i in xrange(1, self.alphabet_size)])
         self.znormalization()
-        self.percentils = self.sorted_distribution[self.percentils_index,:]#[self.sorted_distribution[i,:] for i in self.percentils_index]
+        self.percentils = [[(self.sorted_distribution[i + 1][k] * j + self.sorted_distribution[i][k] * (1 - j)) for i, j in self.percentils_index] for k in xrange(self.window.shape[1])]
         self.subwin_means = np.asarray(map(lambda xs: xs.mean(axis = 0), np.vsplit(self.window, self.nb_subwindow)))         #Numpy array containing the mean of each subwindow 
         self.SAX = np.zeros(self.subwin_means.shape)
         self.sorted_distribution = self.sorted_distribution.T.tolist()
-        self.percentils = self.percentils.T.tolist()
         self.PAA_to_SAX()
 
 
@@ -49,7 +48,7 @@ class Dynamic_SAX:
             :param new_point : New points collected to be add.
             :type new_point : List of float number. Must be the same dimension than the number of signals treated.
         """
-        new_point = (new_point - self.global_mean) * 1.0 / self.global_variance 
+        new_point = (new_point - self.global_mean) * 1.0 / np.sqrt(self.global_variance) 
         removed_point = self.window[self.index_oldest]
         temp_mean = self.global_mean
         self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size
@@ -67,7 +66,7 @@ class Dynamic_SAX:
         """
         for i,percentil in enumerate(self.percentils):
             for j,value in enumerate(percentil):
-                self.percentils[i][j] = self.sorted_distribution[i][self.percentils_index[j]] 
+                self.percentils[i][j] = self.sorted_distribution[i][self.percentils_index[j][0] + 1] * self.percentils_index[j][1] + self.sorted_distribution[i][self.percentils_index[j][0]] * (1 - self.percentils_index[j][1])
 
 
     def znormalization(self):
