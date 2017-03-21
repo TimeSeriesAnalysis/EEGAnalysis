@@ -51,9 +51,8 @@ class Dynamic_SAX:
         new_point = (new_point - self.global_mean) * 1.0 / np.sqrt(self.global_variance) 
         removed_point = self.window[self.index_oldest]
         temp_mean = self.global_mean
-        self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size
-        temp_var =  self.global_variance
-        self.global_variance = temp_var + (new_point**2 -removed_point**2 - 2*temp_mean*(new_point - removed_point) - (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size        
+        self.global_mean = temp_mean + (new_point - removed_point) * 1. / self.window_size          #Wrong when normalized data
+        self.global_variance = self.global_variance + (new_point**2 -removed_point**2 - 2*temp_mean*(new_point - removed_point) - (new_point - removed_point)**2 * 1. / self.window_size) *1. /self.window_size        #SAme comment
         for index,distribution in enumerate(self.sorted_distribution):
             self.sorted_distribution[index].remove(removed_point[index])
             sinsert(self.sorted_distribution[index], new_point[index])
