@@ -37,4 +37,4 @@ Apply a RNN to the sequence of letters to produce a model of the sequence of let
 + Test if SAX transformation is sufficient or FFT transformation is required
 + Evaluate and compare HMM results and RNN 
 + Test on real time EEG signals
-
++ New sensors? [OpenBCI](https://shop.openbci.com/collections/frontpage/products/pre-order-ganglion-board?variant=13461804483)
